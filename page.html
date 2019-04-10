@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>vue-element-admin</title>
+    <style>
+         .pagination {
+	padding:5px;
+	font-family: '微软雅黑',Arial,Verdana,arial,serif;
+}
+.pagination ul {
+    list-style: none;
+    padding-left: 0;
+    font-size: 0;
+}
+.pagination ul li {
+    padding: 0 10px;
+    vertical-align: bottom;
+    display: inline-block;
+    font-size: 14px;
+    min-width: 36px;
+    min-height: 28px;
+    line-height: 28px;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: center;
+    margin-left: -1px;
+    color: #606266;
+    border: 1px solid #ebebeb;
+    height: 30px;
+    transition: all .3s;
+}
+.pagination ul li:hover {
+    color: #80bd01;
+}
+.pagination ul li.totalPage:hover {
+    color: #606266;
+}
+.pagination  li.active {
+    color: #80bd01;
+}
+.pagination li.disabled {
+    cursor: not-allowed;
+}
+.pagination li.disabled:hover {
+    color: #ccc;
+}
+.pagination li.totalPage {
+    background: transparent;
+    cursor: default;
+    border: none;
+    padding: 0 6px;
+}
+ 
+.pagination li.totalPage:hover {
+    transform: none;
+    background-color: #ffffff;
+}
+.pagination li input {
+    -webkit-appearance: none;
+    background-color: #fff;
+    background-image: none;
+    border: 0;
+    border-bottom: 1px solid #dcdfe6;
+    box-sizing: border-box;
+    color: #606266;
+    display: inline-block;
+    font-size: inherit;
+    outline: none;
+    padding: 3px 5px;
+    transition: border-color .2s;
+    width: 40px;
+    height: 25px;
+    margin: 0 6px;
+}
+.pagination li input:focus{
+    border-color: #80bd01;
+}
+.pagination{
+    user-select: none;
+}
+.pagination ul:nth-child(2){
+    border-radius: 6px;
+}
+input[type=number] {
+    -moz-appearance:textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+
+}
+    </style>
+    <!-- <script src="page.js"></script -->
+  </head>
+  <body>
+    <div id="pagination" class="pagination"></div>
+    <!-- built files will be auto injected -->
+  </body>
+  <script>
+      (function(){
+        function myPagination(options) {
+            var pageSize = options.pageSize,
+                pageTotal = options.pageTotal,
+                curPage = options.curPage,
+                id = options.id,
+                getPage = options.getPage,
+                showPageTotalFlag = options.showPageTotalFlag,
+                showSkipInputFlag = options.showSkipInputFlag,
+                pageAmount = options.pageAmount,
+                dataTotal = options.dataTotal;
+            this.pageSize = pageSize || 10; //分页个数
+            this.pageTotal = pageTotal; //总共多少页
+            this.pageAmount = pageAmount; //每页多少条
+            this.dataTotal = dataTotal; //总共多少数据
+            this.curPage = curPage || 1; //初始页码
+            this.ul = document.createElement('ul');
+            this.id = id;
+            this.getPage = getPage;
+            this.middlePageSize = (this.pageSize - 1) / 2;
+            this.showPageTotalFlag = showPageTotalFlag || false; //是否显示数据统计
+            this.showSkipInputFlag = showSkipInputFlag || false; //是否支持跳转
+            this.init();
+        };
+         
+        myPagination.prototype = {
+            init: function init() {
+                var pagination = document.getElementById(this.id);
+                pagination.innerHTML = '';
+                this.ul.innerHTML = '';
+                pagination.appendChild(this.ul);
+                var that = this;
+                //首页
+                //that.firstPage();
+                //上一页
+                that.lastPage();
+                //分页
+                that.getPages().forEach(function (item) {
+                    var li = document.createElement('li');
+                    if (item == that.curPage) {
+                        li.className = 'active';
+                    } else {
+                        li.onclick = function () {
+                            that.curPage = parseInt(this.innerHTML);
+                            that.init();
+                            that.getPage(that.curPage);
+                        };
+                    }
+                    li.innerHTML = item;
+                    that.ul.appendChild(li);
+                });
+                //下一页
+                that.nextPage();
+                //尾页
+                //that.finalPage();
+         
+                //是否支持跳转
+                if (that.showSkipInputFlag)
+                    that.showSkipInput();
+                //是否显示总页数,每页个数,数据
+                if (that.showPageTotalFlag)
+                    that.showPageTotal();
+            },
+            //首页
+            // firstPage: function firstPage() {
+            //     var that = this;
+            //     var li = document.createElement('li');
+            //     li.innerHTML = '首页';
+            //     this.ul.appendChild(li);
+            //     if (parseInt(that.curPage) > 1) {
+            //         li.onclick = function () {
+            //             var val = parseInt(1);
+            //             that.curPage = val;
+            //             that.getPage(that.curPage);
+            //             that.init();
+            //         };
+            //     } else {
+            //         li.className = 'disabled';
+            //     }
+            // },
+            //上一页
+            lastPage: function lastPage() {
+                var that = this;
+                var li = document.createElement('li');
+                li.innerHTML = '上一页';
+                if (parseInt(that.curPage) > 1) {
+                    li.onclick = function () {
+                        that.curPage = parseInt(that.curPage) - 1;
+                        that.init();
+                        that.getPage(that.curPage);
+                    };
+                } else {
+                    li.className = 'disabled';
+                }
+                this.ul.appendChild(li);
+            },
+            //分页
+            getPages: function getPages() {
+                var pag = [];
+                if (this.curPage <= this.pageTotal) {
+         
+                    if (this.curPage < this.pageSize - this.middlePageSize) {
+                        //当前页数小于显示条数
+                        var i = Math.min(this.pageSize, this.pageTotal);
+                        while (i) {
+                            pag.unshift(i--);
+                        }
+                    } else {
+                        //当前页数大于显示条数
+                        var middle = this.curPage - Math.floor(this.pageSize / 2),
+                            //从哪里开始
+                            i = this.pageSize;
+                        if (middle > this.pageTotal - this.pageSize) {
+                            if (middle <= Math.ceil(this.pageSize / 2) - 1) {
+                                i = this.pageSize + this.pageTotal - this.pageSize;
+                                middle = 1;
+                            } else {
+                                middle = this.pageTotal - this.pageSize + 1;
+                            }
+                        }
+                        while (i--) {
+                            pag.push(middle++);
+                        }
+                    }
+                } else {
+                    console.error('当前页数不能大于总页数');
+                }
+                if (!this.pageSize) {
+                    console.error('显示页数不能为空或者0');
+                }
+                return pag;
+            },
+            //下一页
+            nextPage: function nextPage() {
+                var that = this;
+                var li = document.createElement('li');
+                li.innerHTML = '下一页';
+                if (parseInt(that.curPage) < parseInt(that.pageTotal)) {
+                    li.onclick = function () {
+                        that.curPage = parseInt(that.curPage) + 1;
+                        that.init();
+                        that.getPage(that.curPage);
+                    };
+                } else {
+                    li.className = 'disabled';
+                }
+                this.ul.appendChild(li);
+            },
+            //尾页
+            // finalPage: function finalPage() {
+            //     var that = this;
+            //     var li = document.createElement('li');
+            //     li.innerHTML = '尾页';
+            //     this.ul.appendChild(li);
+            //     if (parseInt(that.curPage) < parseInt(that.pageTotal)) {
+            //         li.onclick = function () {
+            //             var yyfinalPage = that.pageTotal;
+            //             var val = parseInt(yyfinalPage);
+            //             that.curPage = val;
+            //             that.getPage(that.curPage);
+            //             that.init();
+            //         };
+            //     } else {
+            //         li.className = 'disabled';
+            //     }
+                
+            // },
+            //是否支持跳转
+            showSkipInput: function showSkipInput() {
+                var that = this;
+                var li = document.createElement('li');
+                li.className = 'totalPage';
+                var span1 = document.createElement('span');
+                span1.innerHTML = '跳转到';
+                li.appendChild(span1);
+                var input = document.createElement('input');
+                input.setAttribute("type", "number");
+                input.onkeydown = function (e) {
+                    var oEvent = e || event;
+                    if (oEvent.keyCode == '13') {
+                        var val = parseInt(oEvent.target.value);
+                        if (typeof val === 'number' && val <= that.pageTotal) {
+                            that.curPage = val;
+                            that.getPage(that.curPage);
+                        } else {
+                            alert("跳转页数不能大于总页数 !")
+                        }
+                        that.init();
+                    }
+                };
+                li.appendChild(input);
+                var span2 = document.createElement('span');
+                span2.innerHTML = '页';
+                li.appendChild(span2);
+                this.ul.appendChild(li);
+            },
+            //是否显示总页数,每页个数,数据
+            showPageTotal: function showPageTotal() {
+                var that = this;
+                var li = document.createElement('li');
+                li.innerHTML = '共&nbsp' + that.pageTotal + '&nbsp页';
+                li.className = 'totalPage';
+                this.ul.appendChild(li);
+                var li2 = document.createElement('li');
+                li2.innerHTML = '每页&nbsp' + that.pageAmount + '&nbsp条';
+                li2.className = 'totalPage';
+                this.ul.appendChild(li2);
+                var li3 = document.createElement('li');
+                li3.innerHTML = '合计&nbsp' + that.dataTotal + '&nbsp条数据';
+                li3.className = 'totalPage';
+                this.ul.appendChild(li3);
+            }
+        };
+        new myPagination({
+            id: 'pagination',
+            curPage: 1, //初始页码
+            pageTotal: 15, //总页数
+            pageAmount: 10, //每页多少条
+            dataTotal: 100, //总共多少条数据
+            //pageSize: 5, //可选,分页个数
+            showPageTotalFlag: true, //是否显示数据统计
+            showSkipInputFlag: true, //是否支持跳转
+            getPage: function(page) {
+              // 点击分页按钮请求数据
+                console.log(page)
+                //getData(page);
+            }
+        }) 
+        })()
+    </script>
+</html>
