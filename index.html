@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="renderer" content="webkit">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>vue-element-admin</title>
+</head>
+
+<body>
+  <div id="app">11</div>
+</body>
+<script>
+  var dataArr =
+    [
+      {
+        "title": "一级导航1",
+        "icon": "fa-stop-circle",
+        "spread": true,
+        "href": "http://www.baidu.com",
+        "children": [
+          {
+            "title": "二级导航A",
+            "icon": "",
+            "href": "lala.html",
+            "spread": true,
+            "children": [
+              {
+                "title": "三级导航",
+                "icon": " ",
+                "href": "button.html"
+              },
+              {
+                "title": "三级导航",
+                "icon": " ",
+                "href": "buttwswon.html"
+              }
+            ]
+          },{
+            "title": "二级导航B",
+            "icon": "",
+            "href": "lala.html",
+            "spread": true,
+          }
+        ]
+      },
+      {
+        "title": "一级导航2",
+        "icon": "fa-stop-circle",
+        "spread": true,
+        "href": "http://www.baidu.com"
+
+      },
+      {
+        "title": "一级导航3",
+        "icon": "fa-stop-circle",
+        "spread": true,
+        "href": "http://www.baidu.com"
+
+      },
+      {
+        "title": "一级导航4",
+        "icon": "fa-stop-circle",
+        "spread": true,
+        "href": "http://www.baidu.com"
+
+      }
+
+    ];
+  getHtml(dataArr);
+  function getHtml(data) {
+    var ulHtml = '<ul class="layui-nav layui-nav-tree beg-navbar">';
+    for (var i = 0; i < data.length; i++) {
+      if (data[i].spread) {
+        ulHtml += '<li class="layui-nav-item layui-nav-itemed">';
+      } else {
+        ulHtml += '<li class="layui-nav-item">';
+      }
+      if (data[i].children !== undefined && data[i].children !== null && data[i].children.length > 0) {
+        ulHtml += '<a href="javascript:;">' + data[i].title;
+        ulHtml += '<span class="layui-nav-more"></span>';
+        ulHtml += '</a>';
+        ulHtml += '<dl class="layui-nav-child">';
+        //二级菜单
+        for (var j = 0; j < data[i].children.length; j++) {
+          //是否有孙子节点
+          if (data[i].children[j].children !== undefined && data[i].children[j].children !== null && data[i].children[j].children.length > 0) {
+            ulHtml += '<dd>';
+            ulHtml += '<a href="javascript:;">' + data[i].children[j].title;
+            ulHtml += '<span class="layui-nav-more"></span>';
+            ulHtml += '</a>';
+            //三级菜单
+            ulHtml += '<dl class="layui-nav-child">';
+            var grandsonNodes = data[i].children[j].children;
+            for (var k = 0; k < grandsonNodes.length; k++) {
+              ulHtml += '<dd>';
+              ulHtml += '<a href="' + grandsonNodes[k].href + '">' + grandsonNodes[k].title + '</a>';
+              ulHtml += '</dd>';
+            }
+            ulHtml += '</dl>';
+            ulHtml += '</dd>';
+          } else {
+            ulHtml += '<dd>';
+            ulHtml += '<a href="' + data[i].children[j].href + '">' + data[i].children[j].title;
+            ulHtml += '</a>';
+            ulHtml += '</dd>';
+          }
+          //ulHtml += '<dd title="' + data[i].children[j].title + '">'; 
+        }
+        ulHtml += '</dl>';
+      } else {
+        var dataUrl = (data[i].href !== undefined && data[i].href !== '') ? 'data-url="' + data[i].href + '"' : '';
+        //ulHtml += '<a href="javascript:;" ' + dataUrl + '>';
+        ulHtml += '<a href="' + data[i].href + '"' + dataUrl + '>';
+        if (data[i].icon !== undefined && data[i].icon !== '') {
+          if (data[i].icon.indexOf('fa-') !== -1) {
+            ulHtml += '<i class="fa ' + data[i].icon + '" aria-hidden="true" data-icon="' + data[i].icon + '"></i>';
+          } else {
+            ulHtml += '<i class="layui-icon" data-icon="' + data[i].icon + '">' + data[i].icon + '</i>';
+          }
+        }
+        ulHtml += '<cite>' + data[i].title + '</cite>';
+        ulHtml += '</a>';
+      }
+      ulHtml += '</li>';
+    }
+    ulHtml += '</ul>';
+    console.log(ulHtml);
+    document.getElementById('app').innerHTML = ulHtml;
+    // return ulHtml;
+  }
+</script>
+
+</html>
